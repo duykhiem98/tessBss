@@ -31,20 +31,31 @@ const fakeData = [
 const windowWith = Dimensions.get('window').width;
 const imageWith = windowWith / 2 - 16;
 const imageHeight = 200;
+function shuffleArray(array) {
+  let i = array.length - 1;
+  for (; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  return array;
+}
 const HomeScreen = () => {
   const [data, setData] = useState([]);
+  const [dataUpdate, setDataUpdate] = useState(false);
   useEffect(() => {
     getData();
-  }, []);
-  useEffect(() => {
-    getData();
-  }, []);
+  }, [dataUpdate]);
+  const onPress = () => {
+    setDataUpdate(!dataUpdate);
+    console.log('=,,,,,,,,,,,,,,,,,,,,', data);
+  };
   const renderItem = ({item}) => (
     <View style={styles.itemStyle}>
       <View>
         <Image source={{uri: item?.avatar}} style={styles.imageStyle} />
       </View>
-
       <View style={styles.name}>
         <Text style={styles.titleName}>
           {item?.first_name} {item?.last_name}
@@ -61,25 +72,22 @@ const HomeScreen = () => {
         'https://random-data-api.com/api/users/random_user?size=10',
       );
       const json = await res.json();
-      console.log('=========json===============>', json);
-      setData(json);
+
+      setData(shuffleArray(json));
     } catch (e) {
       console.log(e);
     }
   };
-  const random_data = () => {
-    const random = data[Math.floor(Math.random() * data.lenght)];
-    console.log('========random============>', random);
-    setData(random);
-  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.headers} onPress={random_data}>
+      <TouchableOpacity style={styles.headers} onPress={onPress}>
         <Text style={styles.title}>Fetch Random</Text>
       </TouchableOpacity>
       <View style={styles.center}>
         <FlatList
           data={data}
+          extraData={dataUpdate}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
           numColumns={2}
